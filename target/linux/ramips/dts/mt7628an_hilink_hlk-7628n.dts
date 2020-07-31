@@ -14,6 +14,16 @@
 		bootargs = "console=ttyS0,57600";
 	};
 
+	leds {
+		compatible = "gpio-leds";
+
+		wlan {
+			label = "hlk-7628n:green:wlan";
+			gpios = <&gpio 44 GPIO_ACTIVE_LOW>;
+		};
+    // 3 more: WAN, USB, SD
+	};
+
 	keys {
 		compatible = "gpio-keys";
 
@@ -22,27 +32,50 @@
 			gpios = <&gpio 38 GPIO_ACTIVE_LOW>;
 			linux,code = <KEY_RESTART>;
 		};
+    // 2nd button is wdt-reset
 	};
 
-	leds {
-		compatible = "gpio-leds";
+	sound {
+		compatible = "simple-audio-card";
+		simple-audio-card,name = "I2S Audio";
+		simple-audio-card,format = "i2s";
+		simple-audio-card,bitclock-master = <&dailink0_master>;
+		simple-audio-card,frame-master = <&dailink0_master>;
 
-		wlan {
-			label = "hlk-7628n:green:wlan";
-			gpios = <&gpio 44 GPIO_ACTIVE_LOW>;
+		simple-audio-card,widgets =
+			"Headphone", "Headphone Jack",
+			"Speaker", "Speakers",
+			"Microphone", "Microphone Jack",
+			"Line", "Line In";
+
+		simple-audio-card,routing =
+			"Headphone Jack", "HP_L",
+			"Headphone Jack", "HP_R",
+			"Speakers", "SPK_LN",
+			"Speakers", "SPK_LP",
+			"Speakers", "SPK_RN",
+			"Speakers", "SPK_RP",
+			"LINPUT1", "Microphone Jack",
+			"LINPUT2", "Line In",
+			"RINPUT2", "Line In";
+
+		simple-audio-card,cpu {
+			sound-dai = <&i2s>;
+		};
+
+		dailink0_master: simple-audio-card,codec {
+			sound-dai = <&codec>;
+			system-clock-frequency = <12288000>;
 		};
 	};
 };
 
 &state_default {
 	gpio {
+    // TODO: should that not be "gpio" also?
 		groups = "i2c";
 		function = "gpio";
 	};
-};
-
-&uart1 {
-	status = "okay";
 };
 
 &spi0 {
@@ -85,6 +118,42 @@
 	};
 };
 
+&i2c {
+	status = "okay";
+
+	codec: wm8960@1a {
+		#sound-dai-cells = <0>;
+		compatible = "wlf,wm8960";
+		reg = <0x1a>;
+
+		wlf,shared-lrclk;
+	};
+};
+
+&i2s {
+	#sound-dai-cells = <0>;
+	status = "okay";
+	pinctrl-names = "default";
+	pinctrl-0 = <&i2s_pins>;
+};
+
+&uart1 {
+	status = "okay";
+};
+
+&ethernet {
+	mtd-mac-address = <&factory 0x28>;
+};
+
+&sdhci {
+	status = "okay";
+	mediatek,cd-high;
+};
+
 &wmac {
+	status = "okay";
+};
+
+&gdma {
 	status = "okay";
 };
