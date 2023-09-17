@@ -95,6 +95,23 @@ define Device/asus_rt-n12-vp-b1
 endef
 TARGET_DEVICES += asus_rt-n12-vp-b1
 
+# This is a three-PCB sandwich.
+# The middle one is the main module with two double row headers going down.
+# The bottom one carries ethernet and USB ports and has the battery attached.
+# The top one is connected via USB and holds the card readers and a K10 label.
+define Device/wudoumi_wdm-k10
+  IMAGE_SIZE := 7872k
+  DEVICE_VENDOR := Wudoumi
+  DEVICE_MODEL := WDM-K10
+  DEVICE_VARIANT := REV5
+  DEVICE_ALT0_VENDOR := Wudoumi
+  DEVICE_ALT0_MODEL := WIFI_Module_7628
+  DEVICE_ALT0_VARIANT := REV01
+  DEVICE_PACKAGES :=  kmod-mt76x2 kmod-usb2 kmod-usb-ohci \
+	kmod-usb-ledtrig-usbport
+endef
+TARGET_DEVICES += wudoumi_wdm-k10
+
 define Device/buffalo_wcr-1166ds
   IMAGE_SIZE := 7936k
   BUFFALO_TAG_PLATFORM := MTK
