@@ -11,10 +11,10 @@
 	model = "Wudoumi WDM-K10";
 
 	aliases {
-		led-boot = &led_system;
-		led-failsafe = &led_system;
-		led-running = &led_system;
-		led-upgrade = &led_system;
+		led-boot = &led_power;
+		led-failsafe = &led_power;
+		led-running = &led_power;
+		led-upgrade = &led_power;
 	};
 
   // TODO
@@ -32,8 +32,8 @@
 	leds {
 		compatible = "gpio-leds";
 
-		led_system: system {
-			label = "green:system";
+		led_power: power {
+			label = "red:power";
 			gpios = <&gpio 75 GPIO_ACTIVE_LOW>; // should be correct, but...
 		};
 
@@ -42,7 +42,8 @@
 			gpios = <&gpio 42 GPIO_ACTIVE_LOW>; // should be ok?
 			linux,default-trigger = "phy0tpt";
 		};
-
+    // just for reference - copied from other DTS
+    /*
 		wan {
 			label = "green:wan";
 			gpios = <&gpio 43 GPIO_ACTIVE_LOW>;
@@ -52,11 +53,11 @@
 			label = "green:lan";
 			gpios = <&gpio 44 GPIO_ACTIVE_LOW>;
 		};
+    */
 	};
 
 };
 
-// WORKS
 &spi0 {
 	status = "okay";
 
@@ -97,7 +98,6 @@
 	};
 };
 
-// WORKS
 &ethernet {
 	nvmem-cells = <&macaddr_factory_4>;
 	nvmem-cell-names = "mac-address";
@@ -113,17 +113,23 @@
 	mediatek,mtd-eeprom = <&factory 0x0>;
 };
 
-// VERIFIED / OKAY
 &factory {
 	compatible = "nvmem-cells";
 	#address-cells = <1>;
 	#size-cells = <1>;
 
+  // first 4 bytes are 2876 0002 - looks like SoC ID + variant
+
 	macaddr_factory_4: macaddr@4 {
 		reg = <0x4 0x6>;
 	};
 
-  // WiFi MAC
+  // copy of MAC addr
+	macaddr_factory_28: macaddr@28 {
+		reg = <0x28 0x6>;
+	};
+
+  // secondary MAC addr, for what?
 	macaddr_factory_2e: macaddr@2e {
 		reg = <0x2e 0x6>;
 	};
@@ -136,7 +142,6 @@
 	};
 };
 
-// VERIFIED / OKAY
 &usbphy {
 	status = "okay";
 };
